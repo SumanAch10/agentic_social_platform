@@ -1,0 +1,64 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.env/
+.env.*
+
+# VSCode config
+.vscode/
+
+# macOS system files
+.DS_Store
+
+# Editor backups
+*~ 
+*.swp
+*.swo
+*.bak
+
+# Python packaging
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# Log files
+*.log
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# PostgreSQL related dumps
+*.sql
+*.dump
+
+# Database files
+*.db
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDEs
+.idea/
+*.iml
+
+# Node-related (if you’re adding JS frontend later)
+node_modules/
