@@ -5,7 +5,7 @@ class signIn_user(BaseModel):
     email:EmailStr
     password:str
     
-class singUp_user(BaseModel):
+class signUp_user(BaseModel):
     email:EmailStr
     password:str
     confirm_password:str
