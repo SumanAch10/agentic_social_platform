@@ -15,5 +15,21 @@ def create_user(user:users.signUp_user):
         return {"message":"User registered successfully","User":db.signUp_user}
     
     raise HTTPException(status_code = 400,detail="Password donot match")
+
+@router.post("/login_user")
+def signIn_user(user:users.signIn_user):
+    print("Sign in hit!!")
+    for u in db.signUp_user:
+        print("Inside the loop")
+        if(u["email"] == user.email and u["password"] == user.password):
+            print("Entering into the if else")
+            db.signIn_user.append(user.dict())
+            return {"message":"User authenticated succesfully"}  
+        
+        else:
+            return {"message":"Email or password is invalid!!!!"}
+            
+    print("Outside the loop!!")
+        
         
 
