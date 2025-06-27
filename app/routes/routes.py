@@ -21,6 +21,7 @@ def signIn_user(user:users.signIn_user):
     print("Sign in hit!!")
     for u in db.signUp_user:
         print("Inside the loop")
+        print("Checking the if else")
         if(u["email"] == user.email and u["password"] == user.password):
             print("Entering into the if else")
             db.signIn_user.append(user.dict())
@@ -29,7 +30,7 @@ def signIn_user(user:users.signIn_user):
         else:
             return {"message":"Email or password is invalid!!!!"}
             
-    print("Outside the loop!!")
+    
         
         
 
