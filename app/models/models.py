@@ -15,7 +15,7 @@ class User(Base):
     def __repr__(self):
         pass
 
-# Storing the database url
+# Storing the database url and connecting it
 DATABASE_URL = "postgresql://postgres:<your_password>@localhost:5432/Agentic_social_platform"
 
 # Create Engine
