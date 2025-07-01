@@ -1,8 +1,6 @@
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column,Integer, String
-from sqlalchem.orm import sessionmaker
 
-Base = declarative_base()
+from sqlalchemy import Column,Integer, String
+from app.db import Base
 
 class User(Base):
     __tablename__ = 'user_login'
@@ -13,21 +11,12 @@ class User(Base):
     password = Column(String,nullable=False)
     
     def __repr__(self):
-        pass
+        return f"<User(id={self.id}, user_name='{self.user_name}', email='{self.email}')>"
 
-# Storing the database url and using it to connect with the database
-DATABASE_URL = "postgresql://postgres:<your_password>@localhost:5432/Agentic_social_platform"
 
-# Create Engine
-engine = create_engine(DATABASE_URL)
 
-# Create tables
-Base.metadata.create_all(DATABASE_URL)
 
-print("Creating the session")
-# Create a session
-Session =  sessionmaker(bind = engine)
-session = Session()
+
 
 
 
