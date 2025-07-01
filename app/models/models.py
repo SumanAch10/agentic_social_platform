@@ -24,6 +24,7 @@ engine = create_engine(DATABASE_URL)
 # Create tables
 Base.metadata.create_all(DATABASE_URL)
 
+print("Creating the session")
 # Create a session
 Session =  sessionmaker(bind = engine)
 session = Session()
