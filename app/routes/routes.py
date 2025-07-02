@@ -1,9 +1,11 @@
-from app.schemas import users
+# from app.schemas import users
 from fastapi import FastAPI,HTTPException,status,APIRouter
-from app.db import db
-from app.models import models
+# from app.db import db
+# from app.models import models
+
 
 router = APIRouter()
+print(type(router))
 
 # Signing a new user
 @router.post("/user_create")
