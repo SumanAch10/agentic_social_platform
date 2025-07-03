@@ -2,7 +2,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-DATABASE_URL = "postgresql://postgres:<your_password>@localhost:5432/Agentic_social_platform"
+DATABASE_URL = "postgresql://postgres:1415@localhost:5432/Agentic_social_platform"
 
 # Create Engine
 engine = create_engine(DATABASE_URL)
