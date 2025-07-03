@@ -1,45 +1,56 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from app.models.models import User  # SQLAlchemy model
-from app.schemas.users import UserCreate  # Pydantic model
-from app.db import SessionLocal
-from app.utils import hash_password
+from app.schemas.users import UserCreate,UserLogin # Pydantic model
+from app.db.db import SessionLocal
+from app.utils.utils import hash_password,verify_password
 
 def create_user(user:UserCreate):
-    db: Session = SessionLocal()
-    
+    # Creating the session(a temporary workspace)
+    db:Session = SessionLocal()
+    print("Printing the session:,",db)
     try:
-        # 1. Check for existing user
-        existing_user = db.query(User).filter(
-            (User.email == user.email) | (User.user_name == user.user_name)
-        ).first()
+        existing_user = db.query(User).filter((user.user_name == User.user_name) | (user.email ==
+        User.email)).first()
+        print("Printing existing user: ", existing_user)
+        # If there is existing user, don't let it enter the database
         if existing_user:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="User with this email or username already exists"
+                status_code = status.HTTP_400_BAD_REQUEST,detail = "User with this username or email already exists"
             )
-
-        # 2. Hash the password
-        hashed_pwd = hash_password(user.password)
-
-        # 3. Create the User SQLAlchemy object
-        new_user = User(
-            user_name=user.user_name,
-            email=user.email,
-            password=hashed_pwd
-        )
-
-        # 4. Add to session and commit
+        
+        # Hashing the password before putting into database
+        hashed_password = hash_password(user.password)
+        print("after hashing the password")
+    #    If no existing user
+        new_user = User(user_name = user.user_name,password = hashed_password ,email = user.email)
+    
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
-
-        # 5. Return new user (or a success message)
-        return {"message": "User created successfully", "user_id": new_user.id}
-
+        
+        return{"message",f"User with {user.user_name} created succesfully"}
+    
     finally:
         db.close()
+          
+def login_user(user:UserLogin):
+    # Creating a db session
+    db:Session = SessionLocal()
     
+    db_user = db.query(User).filter(user.email == User.email).first()
+    
+    # Verifying the email exists or not
+    if not db_user:
+        raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED,detail="Invalid username or password")
+    
+    # Checking the password
+    if not verify_password(plain_password=user.password,hash_password=db_user.password):
+        raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED,detail="Invalid username or password")
+    
+    # Login succesful
+    return {"message",f"User {db_user.user_name} with email:{db_user.email} login succesfully"}
+        
 
     
     
