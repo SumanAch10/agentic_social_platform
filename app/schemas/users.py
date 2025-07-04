@@ -1,22 +1,18 @@
 # Defining the schemas for my users in this file
 from pydantic import BaseModel,EmailStr,constr,root_validator
+from pydantic import BaseModel, EmailStr, field_validator, model_validator
 
 class UserCreate(BaseModel):
-    user_name : str
-    email:EmailStr
-    password:constr(min_length=6)
-    confirm_password:str
-    
-    @root_validator()
-    def check_passwords_match(cls, values):
-        pw = values.get("password")
-        cpw = values.get("confirm_password")
+    email: EmailStr
+    password: str
+    confirm_password: str
+    user_name: str
 
-        if pw != cpw:
+    @model_validator(mode='after')
+    def check_passwords_match(self):
+        if self.password != self.confirm_password:
             raise ValueError("Passwords do not match")
-
-        return values
-    
+        return self
 class UserLogin(BaseModel):
     email:EmailStr
     password:constr(min_length=6)
