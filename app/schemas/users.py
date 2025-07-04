@@ -7,7 +7,15 @@ class UserCreate(BaseModel):
     password:constr(min_length=6)
     confirm_password:str
     
-    
+    @root_validator()
+    def check_passwords_match(cls, values):
+        pw = values.get("password")
+        cpw = values.get("confirm_password")
+
+        if pw != cpw:
+            raise ValueError("Passwords do not match")
+
+        return values
     
 class UserLogin(BaseModel):
     email:EmailStr
