@@ -51,7 +51,15 @@ def login_user(user:UserLogin):
     # Login succesful
     return {"message",f"User {db_user.user_name} with email:{db_user.email} login succesfully"}
         
-
+def getUser(user_name:str):
+    db:Session = SessionLocal()
+    
+    db_user = db.query(User).filter(user_name == User.user_name).first()
+    
+    if not db_user:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND,detail = "User not found")
+    
+    return db_user
     
     
     
