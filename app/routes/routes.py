@@ -14,6 +14,10 @@ def create_user_route(user: UserCreate):
 def login_user(user:UserLogin):
     return services.login_user(user)
 
+@router.get("/{user_name}")
+def get_byuser_name(user_name:str):
+    return services.getUser(user_name)
+
             
     
         
