@@ -19,6 +19,10 @@ def login_user(user:UserLogin):
 def get_byuser_name(user_name:str):
     return services.getUser(user_name)
 
+@router.get("/protected")
+def get_protected_route(current_user_email: str = Depends(verify_token)):
+    return {"message": f"Welcome {current_user_email}"}
+
             
     
         
