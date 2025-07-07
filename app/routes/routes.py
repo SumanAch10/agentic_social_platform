@@ -2,6 +2,7 @@ from app.services import services
 from fastapi import APIRouter
 from app.schemas.users import UserCreate,UserLogin
 
+
 router = APIRouter()
 # print(type(router))
 
