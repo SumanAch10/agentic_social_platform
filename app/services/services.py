@@ -3,15 +3,15 @@ from sqlalchemy.orm import Session
 from app.models.models import User  # SQLAlchemy model
 from app.schemas.users import UserCreate,UserLogin # Pydantic model
 from app.db.db import SessionLocal
-from app.utils.utils import hash_password,verify_password
+from app.utils.utils import hash_password,verify_password,create_access_token
 
 def create_user(user:UserCreate):
     # Creating the session(a temporary workspace)
     db:Session = SessionLocal()
     print("Printing the session:,",db)
     try:
-        existing_user = db.query(User).filter((user.user_name == User.user_name) | (user.email ==
-        User.email)).first()
+        existing_user = db.query(User).filter(( User.user_name == user.user_name ) | (User.email ==
+        user.email)).first()
         print("Printing existing user: ", existing_user)
         # If there is existing user, don't let it enter the database
         if existing_user:
@@ -29,7 +29,7 @@ def create_user(user:UserCreate):
         db.commit()
         db.refresh(new_user)
         
-        return{"message",f"User with {user.user_name} created succesfully"}
+        return{"message":f"User with {user.user_name} created succesfully"}
     
     finally:
         db.close()
@@ -37,24 +37,33 @@ def create_user(user:UserCreate):
 def login_user(user:UserLogin):
     # Creating a db session
     db:Session = SessionLocal()
-    
-    db_user = db.query(User).filter(user.email == User.email).first()
+    try:
+        db_user = db.query(User).filter(User.email == user.email).first()
     
     # Verifying the email exists or not
-    if not db_user:
-        raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED,detail="Invalid username or password")
+        if not db_user:
+            raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED,detail="Invalid username or password")
     
     # Checking the password
-    if not verify_password(plain_password=user.password,hash_password=db_user.password):
-        raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED,detail="Invalid username or password")
+        if not verify_password(plain_password=user.password,hash_password=db_user.password):
+            raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED,detail="Invalid username or password")
     
-    # Login succesful
-    return {"message",f"User {db_user.user_name} with email:{db_user.email} login succesfully"}
+    # token generation
+    
+        token_payload = {"sub":db_user.email}
+        token = create_access_token(token_payload)
+    
+        return {
+            "access_token":token,
+            "token_type":"bearer"
+        }
+    finally:
+        db.close()
         
 def getUser(user_name:str):
     db:Session = SessionLocal()
     
-    db_user = db.query(User).filter(user_name == User.user_name).first()
+    db_user = db.query(User).filter(User.user_name == user_name).first()
     
     if not db_user:
         raise HTTPException(status_code = status.HTTP_404_NOT_FOUND,detail = "User not found")
