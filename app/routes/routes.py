@@ -1,7 +1,7 @@
 from app.services import services
 from fastapi import APIRouter,Depends
 from app.schemas.users import UserCreate,UserLogin
-from app.utils.utils  import verify_token
+from app.utils.utils  import verify_access_token
 
 router = APIRouter()
 # print(type(router))
@@ -16,7 +16,7 @@ def login_user(user:UserLogin):
     return services.login_user(user)
 
 @router.get("/protected")
-def get_protected_route(current_user_email: str = Depends(verify_token)):
+def get_protected_route(current_user_email: str = Depends(verify_access_token)):
     return {"message": f"Welcome {current_user_email}"}
 
 @router.get("/{user_name}")
