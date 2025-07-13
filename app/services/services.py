@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.models.models import User  # SQLAlchemy model
 from app.schemas.users import UserCreate,UserLogin # Pydantic model
 from app.db.db import SessionLocal
-from app.utils.utils import hash_password,verify_password,create_access_token
+from app.utils.utils import hash_password,verify_password,create_access_token,verify_access_token
 
 def create_user(user:UserCreate):
     # Creating the session(a temporary workspace)
@@ -33,45 +33,37 @@ def create_user(user:UserCreate):
     
     finally:
         db.close()
-          
-def login_user(user:UserLogin):
-    # Creating a db session
-    db:Session = SessionLocal()
-    try:
-        db_user = db.query(User).filter(User.email == user.email).first()
-    
-    # Verifying the email exists or not
-        if not db_user:
-            raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED,detail="Invalid username or password")
-    
-    # Checking the password
-        if not verify_password(plain_password=user.password,hash_password=db_user.password):
-            raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED,detail="Invalid username or password")
-    
-    # token generation
-    
-        token_payload = {"sub":db_user.email}
-        token = create_access_token(token_payload)
-    
-        return {
-            "access_token":token,
-            "token_type":"bearer"
-        }
-    finally:
-        db.close()
         
-def getUser(user_name:str):
+def login_user(user:UserLogin):
+    # Creates a session
     db:Session = SessionLocal()
     
-    db_user = db.query(User).filter(User.user_name == user_name).first()
+    try:
+        # Checking if the email exist in my database
+        find_user = db.query(User).filter(User.email == user.email).first()    
+        if not find_user:
+            raise HTTPException(status_code = status.HTTP_404_NOT_FOUND,detail = "User not found")
+        
+        # If the if condition isn't evaluated it means user exist, now i need to validate the password entered
+        
+        db_passoword = find_user.password
+        is_passwoord_valid = verify_password(plain_password =user.password,hash_password = db_passoword)
+        
+        # If the password matched
+        if is_passwoord_valid:
+            # Authenticating the user and returning the jwt token as a response
+            # Now generate the token in utils.py and return the token and token type as bearer
+            current_user_email = {"sub":find_user.email}
+            jwt_token = create_access_token(current_user_email)
+            print(current_user_email)
+            return {"token":jwt_token,
+                    "token_type":"bearer",
+                    "User_email":f"{find_user.email}"
+                    }
+        
+        # If the (if condition is not evaluated then the password didn't matched)
+        raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED,detail = "Password didn't match")      
     
-    if not db_user:
-        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND,detail = "User not found")
+    finally:
+        db.close()    
     
-    return db_user
-    
-    
-    
-
-    
-
