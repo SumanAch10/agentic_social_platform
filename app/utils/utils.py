@@ -8,6 +8,7 @@ from fastapi.security import OAuth2PasswordBearer
 SECRET_KEY = "your_secret_key"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="user_login")
@@ -25,14 +26,17 @@ def create_access_token(token_payload : dict):
     expiry_time = datetime.utcnow() + timedelta(minutes = ACCESS_TOKEN_EXPIRE_MINUTES)
     # Adding the expiry_time to the payload
     token_payload.update({"exp":expiry_time})
-    jwt_token = jwt.encode(claims = token_payload,key = SECRET_KEY,algorithm = ALGORITHM)
-    return jwt_token
+    jwt_access_token = jwt.encode(claims = token_payload,key = SECRET_KEY,algorithm = ALGORITHM)
+    return jwt_access_token
 
 # Creating the refresh token
 def create_refresh_token(token_payload : dict):
-    pass
+    expiry_time = datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+    token_payload.update({"exp":expiry_time})
+    jwt_refresh_token = jwt.encode(claims = token_payload,key = SECRET_KEY,algorithm=ALGORITHM)
+    return jwt_refresh_token
 
-# Verigying the token and then creating a db session
+# Verifying the token and then creating a db session
 def verify_access_token(token:str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code = status.HTTP_401_UNAUTHORIZED,
