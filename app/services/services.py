@@ -4,7 +4,7 @@ from app.models.models import User  # SQLAlchemy model
 from app.models import refresh_token
 from app.schemas.users import UserCreate,UserLogin # Pydantic model
 from app.db.db import SessionLocal
-from app.utils.utils import hash_password,verify_password,create_access_token,verify_access_token
+from app.utils.utils import hash_password,verify_password,create_access_token,verify_access_token,create_refresh_token
 
 def create_user(user:UserCreate):
     # Creating the session(a temporary workspace)
@@ -55,8 +55,9 @@ def login_user(user:UserLogin):
             # Authenticating the user and returning the jwt token as a response
             # Now generate the token in utils.py and return the token and token type as bearer
             current_user_email = {"sub":find_user.email}
-            jwt_token = create_access_token(current_user_email)
-            print(current_user_email)
+            jwt_access_token = create_access_token(current_user_email)
+            jwt_refresh_token = create_refresh_token(current_user_email)
+            # print(current_user_email)
             return {"token":jwt_token,
                     "token_type":"bearer",
                     "User_email":f"{find_user.email}"
