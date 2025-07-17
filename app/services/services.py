@@ -1,4 +1,5 @@
 from fastapi import HTTPException, status
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from app.models.models import User  # SQLAlchemy model
 from app.models import refresh_token
@@ -42,7 +43,7 @@ def login_user(user:UserLogin):
     try:
         # Checking if the email exist in my database
         find_user = db.query(User).filter(User.email == user.email).first()    
-        if not find_user:
+        if find_user is None:
             raise HTTPException(status_code = status.HTTP_404_NOT_FOUND,detail = "User not found")
         
         # If the if condition isn't evaluated it means user exist, now i need to validate the password entered
@@ -57,12 +58,27 @@ def login_user(user:UserLogin):
             current_user_email = {"sub":find_user.email}
             jwt_access_token = create_access_token(current_user_email)
             jwt_refresh_token = create_refresh_token(current_user_email)
-            # print(current_user_email)
-            return {"token":jwt_token,
-                    "token_type":"bearer",
-                    "User_email":f"{find_user.email}"
-                    }
-        
+            # # print(current_user_email)
+            # return {"access_token":jwt_access_token,
+            #         "refresh_token":jwt_refresh_token,
+            #         "token_type":"bearer",
+            #         "User_email":f"{find_user.email}"
+            #         }
+            response = JSONResponse(content = {
+                "acess_token":jwt_access_token,
+                "token_type":"bearer"
+                })
+            
+            # Setting up httponly cookie for refresh token
+            response.set_cookie(
+                key = "jwt_refresh_token",
+                value = jwt_refresh_token,
+                httponly = True,
+                secure = True,
+                samesite = "strict",
+                    )
+            
+            return response     
         # If the (if condition is not evaluated then the password didn't matched)
         raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED,detail = "Password didn't match")      
     
