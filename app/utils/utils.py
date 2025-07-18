@@ -1,8 +1,10 @@
 from passlib.context import CryptContext
 from datetime import datetime,timedelta
 from jose import jwt, JWTError
+from sqlalchemy.orm import Session
 from fastapi import Depends,HTTPException,status
 from fastapi.security import OAuth2PasswordBearer
+from app.db.db import SessionLocal
 
 # Configuration variable
 SECRET_KEY = "your_secret_key"
@@ -13,6 +15,11 @@ REFRESH_TOKEN_EXPIRE_DAYS = 7
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="user_login")
 print("O auth scheme type: ",type(oauth2_scheme))
+
+# Creating a db session
+def get_db():
+    db:Session = SessionLocal()
+    return db
 
 # print(oauth2_scheme)
 def hash_password(password : str):
