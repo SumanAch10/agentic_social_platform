@@ -23,7 +23,9 @@ def get_protected_route(current_user_email: str = Depends(verify_access_token)):
 def get_byuser_name(user_name:str):
     return services.getUser(user_name)
 
-
+@router.post("/refresh")
+def refresh_token(response:dict  = Depends(services.get_refresh_token)):
+    return response
 
             
     
