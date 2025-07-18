@@ -1,11 +1,11 @@
 from fastapi import HTTPException, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-from app.models.models import User  # SQLAlchemy model
-from app.models import refresh_token
+from app.models.models import User # SQLAlchemy model
+from app.modelss.refresh_token import RefreshToken
 from app.schemas.users import UserCreate,UserLogin # Pydantic model
 from app.db.db import SessionLocal
-from app.utils.utils import hash_password,verify_password,create_access_token,verify_access_token,create_refresh_token
+from app.utils.utils import hash_password,verify_password,create_access_token,verify_access_token,create_refresh_token,get_db
 
 def create_user(user:UserCreate):
     # Creating the session(a temporary workspace)
@@ -58,14 +58,10 @@ def login_user(user:UserLogin):
             current_user_email = {"sub":find_user.email}
             jwt_access_token = create_access_token(current_user_email)
             jwt_refresh_token = create_refresh_token(current_user_email)
-            # # print(current_user_email)
-            # return {"access_token":jwt_access_token,
-            #         "refresh_token":jwt_refresh_token,
-            #         "token_type":"bearer",
-            #         "User_email":f"{find_user.email}"
-            #         }
+
+            # It is creating an instance of JSONResponse 
             response = JSONResponse(content = {
-                "acess_token":jwt_access_token,
+                "access_token":jwt_access_token,
                 "token_type":"bearer"
                 })
             
@@ -77,6 +73,15 @@ def login_user(user:UserLogin):
                 secure = True,
                 samesite = "strict",
                     )
+
+            # Storing it in the database
+            refresh_token_db = RefreshToken(
+            token=jwt_refresh_token,
+            user_id=find_user.id,
+            expires_at=datetime.utcnow() + timedelta(days=7)
+            )
+            db.add(refresh_token_db)
+            db.commit()
             
             return response     
         # If the (if condition is not evaluated then the password didn't matched)
@@ -84,4 +89,42 @@ def login_user(user:UserLogin):
     
     finally:
         db.close()    
+        
+
+def get_refresh_token(
+    jwt_refresh_token: str = Cookie(None),
+    db: Session = Depends(get_db)
+):
+    if not jwt_refresh_token:
+        raise HTTPException(status_code=401, detail="Missing refresh token")
+
+    try:
+        payload = jwt.decode(jwt_refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_email = payload.get("sub")
+        if user_email is None:
+            raise HTTPException(status_code=401, detail="Invalid refresh token")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
+
+    # 🔍 Get user from DB
+    user = db.query(User).filter(User.email == user_email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # 🔒 Find matching refresh token in DB
+    db_token = db.query(RefreshToken).filter(RefreshToken.token == jwt_refresh_token).first()
+    if not db_token:
+        raise HTTPException(status_code=401, detail="Refresh token not recognized")
+
+    # ⏳ Check expiration
+    if db_token.expires_at < datetime.utcnow():
+        raise HTTPException(status_code=401, detail="Refresh token expired")
+
+    # 🔑 Generate new access token
+    new_access_token = create_access_token(data={"sub": user.email})
+
+    return {
+        "access_token": new_access_token,
+        "token_type": "bearer"
+    }
     
