@@ -1,8 +1,6 @@
 # This is the database connector
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
-from app.models.models import User
-from app.models.refresh_token import RefreshToken
 
 DATABASE_URL = "postgresql://postgres:1415@localhost:5432/Agentic_social_platform"
 
