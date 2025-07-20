@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.models.models import User,RefreshToken # SQLAlchemy model
 from app.schemas.users import UserCreate,UserLogin # Pydantic model
 from app.db.db import SessionLocal
+from datetime import datetime,timedelta
 from app.utils.utils import hash_password,verify_password,create_access_token,verify_access_token,create_refresh_token,get_db
 
 def create_user(user:UserCreate):
@@ -63,7 +64,7 @@ def login_user(user:UserLogin):
                 "access_token":jwt_access_token,
                 "token_type":"bearer"
                 })
-            
+            print("Inside the login fuction")
             # Setting up httponly cookie for refresh token
             response.set_cookie(
                 key = "jwt_refresh_token",
@@ -73,16 +74,10 @@ def login_user(user:UserLogin):
                 samesite = "strict",
                     )
 
-            # Storing it in the database
-            refresh_token_db = RefreshToken(
-            token=jwt_refresh_token,
-            user_id=find_user.id,
-            expires_at=datetime.utcnow() + timedelta(days=7)
-            )
-            db.add(refresh_token_db)
-            db.commit()
-            
-            return response     
+            return response  
+            # return {
+            #     "key":"request done"
+            # }   
         # If the (if condition is not evaluated then the password didn't matched)
         raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED,detail = "Password didn't match")      
     
