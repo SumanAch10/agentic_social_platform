@@ -73,7 +73,13 @@ def login_user(user:UserLogin):
                 secure = True,
                 samesite = "strict",
                     )
-
+            # Before returning the response, let's store the jwt_refresh_token in the db
+            jwt_expiry = datetime.utcnow()+timedelta(days = 7)
+            refresh_token = RefreshToken(token = jwt_refresh_token,user_id = find_user.id,expires_at = jwt_expiry)
+            db.add(refresh_token)
+            db.commit()
+            db.refresh(refresh_token)
+            
             return response  
             # return {
             #     "key":"request done"
