@@ -63,4 +63,5 @@ def verify_access_token(token:str = Depends(oauth2_scheme)):
     except JWTError:
         raise credentials_exception
 
-
+def validate_refresh_token():
+    pass
