@@ -9,7 +9,7 @@ from app.db.db import SessionLocal
 # Configuration variable
 SECRET_KEY = "your_secret_key"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 5
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -17,9 +17,9 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="user_login")
 print("O auth scheme type: ",type(oauth2_scheme))
 
 # Creating a db session
-def get_db():
-    db:Session = SessionLocal()
-    return db
+# def get_db():
+#     db:Session = SessionLocal()
+#     return db
 
 # print(oauth2_scheme)
 def hash_password(password : str):
@@ -51,10 +51,8 @@ def verify_access_token(token:str = Depends(oauth2_scheme)):
     )
     try:        
         # Now i got the token, it's time to decode it 
-        payload = jwt.decode(token,key=SECRET_KEY, algorithms=[ALGORITHM])
-        # Getting the user email
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_email = payload.get("sub")
-        
         if not user_email:
             raise credentials_exception
         
@@ -63,5 +61,26 @@ def verify_access_token(token:str = Depends(oauth2_scheme)):
     except JWTError:
         raise credentials_exception
 
-def validate_refresh_token():
-    pass
+def verify_refresh_token(jwt_refresh_token : str) ->str:
+    # Writing my logic here, an verifing the refresh_token
+    credentials_exception = HTTPException(
+        status_code = status.HTTP_401_UNAUTHORIZED,
+        detail = "Invalid Credentials"
+    )
+    try:
+        payload = jwt.decode(jwt_refresh_token, key = SECRET_KEY,algorithms=[ALGORITHM])
+        user_email = payload.get("sub")
+        
+        if not user_email:
+            raise credentials_exception
+        
+        is_expired = payload.get("exp")
+        
+        if is_expired < datetime.utcnow().timestamp():
+            # It means the token has expired
+            raise HTTPException(status_code = 401,detail = "Token has expired")
+        # If the token hasn't expired
+        return user_email
+    
+    except Exception:
+        raise credentials_exception
