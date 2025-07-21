@@ -5,7 +5,7 @@ from app.models.models import User,RefreshToken # SQLAlchemy model
 from app.schemas.users import UserCreate,UserLogin # Pydantic model
 from app.db.db import SessionLocal
 from datetime import datetime,timedelta
-from app.utils.utils import hash_password,verify_password,create_access_token,verify_access_token,create_refresh_token,get_db
+from app.utils.utils import hash_password,verify_password,create_access_token,verify_access_token,create_refresh_token,verify_refresh_token
 
 def create_user(user:UserCreate):
     # Creating the session(a temporary workspace)
@@ -57,34 +57,32 @@ def login_user(user:UserLogin):
             # Now generate the token in utils.py and return the token and token type as bearer
             current_user_email = {"sub":find_user.email}
             jwt_access_token = create_access_token(current_user_email)
-            # jwt_refresh_token = create_refresh_token(current_user_email)
-
+            
             # It is creating an instance of JSONResponse 
             response = JSONResponse(content = {
                 "access_token":jwt_access_token,
                 "token_type":"bearer"
                 })
-            print("Inside the login fuction")
+        
             # Setting up httponly cookie for refresh token
-            response.set_cookie(
+            # Before returning the response, let's store the jwt_refresh_token in the db
+            is_jwt_refresh = db.query(RefreshToken).filter((RefreshToken.user_id == find_user.id)).first()
+            if is_jwt_refresh is None or is_jwt_refresh.expires_at < datetime.utcnow() :
+                # It means either the token has expired or there doesn't exist a token
+                # Give a new token to the user in this case
+                jwt_refresh_token = create_refresh_token(current_user_email)
+                jwt_expiry = datetime.utcnow()+timedelta(days = 7)
+                refresh_token = RefreshToken(token = jwt_refresh_token,user_id = find_user.id,expires_at = jwt_expiry)
+                response.set_cookie(
                 key = "jwt_refresh_token",
                 value = jwt_refresh_token,
                 httponly = True,
                 secure = True,
                 samesite = "strict",
                 )
-            # Before returning the response, let's store the jwt_refresh_token in the db
-            is_jwt_refresh = db.query(RefreshToken).filter((RefreshToken.user_id == find_user.id)).first()
-            if is_jwt_refresh is None or is_jwt_refresh.expires_at < datetime.utcnow() :
-                # It means either the token has expired or there doesn't exist a token
-                # Give a new token to the user in this case
-                pass
-            jwt_expiry = datetime.utcnow()+timedelta(days = 7)
-            refresh_token = RefreshToken(token = jwt_refresh_token,user_id = find_user.id,expires_at = jwt_expiry)
-            
-            db.add(refresh_token)
-            db.commit()
-            db.refresh(refresh_token)
+                db.add(refresh_token)
+                db.commit()
+                db.refresh(refresh_token)
             
             return response  
             # return {
@@ -97,40 +95,22 @@ def login_user(user:UserLogin):
         db.close()    
         
 
-def get_refresh_token(
-    jwt_refresh_token: str = Cookie(None),
-    db: Session = Depends(get_db)
-):
-    if not jwt_refresh_token:
-        raise HTTPException(status_code=401, detail="Missing refresh token")
+# Function to renew the access token
+def renew_access_token(jwt_refresh_token: str = Cookie(None)):
+    # I don't need a db session right now
+    # db:Session = SessionLocal()s
+    # what if i don't recieve the jwt token
+    if jwt_refresh_token is None:
+        raise HTTPException(status_code = 401,detail = "Token doesn't Exist")
+    
+    user_email = verify_refresh_token(jwt_refresh_token)
+    cuurent_user_email = {"sub":user_email}
+    jwt_access_token = create_access_token(cuurent_user_email)
 
-    try:
-        payload = jwt.decode(jwt_refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_email = payload.get("sub")
-        if user_email is None:
-            raise HTTPException(status_code=401, detail="Invalid refresh token")
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid refresh token")
-
-    # 🔍 Get user from DB
-    user = db.query(User).filter(User.email == user_email).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    # 🔒 Find matching refresh token in DB
-    db_token = db.query(RefreshToken).filter(RefreshToken.token == jwt_refresh_token).first()
-    if not db_token:
-        raise HTTPException(status_code=401, detail="Refresh token not recognized")
-
-    # ⏳ Check expiration
-    if db_token.expires_at < datetime.utcnow():
-        raise HTTPException(status_code=401, detail="Refresh token expired")
-
-    # 🔑 Generate new access token
-    new_access_token = create_access_token(data={"sub": user.email})
-
-    return {
-        "access_token": new_access_token,
-        "token_type": "bearer"
-    }
+    response = JSONResponse(content = {
+            "access_token":jwt_access_token,
+            "token_type":"bearer"
+            })
+    return response
+    db.close()
     
