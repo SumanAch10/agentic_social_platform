@@ -26,7 +26,6 @@ def create_user(user:UserCreate):
         print("after hashing the password")
     #    If no existing user
         new_user = User(user_name = user.user_name,password = hashed_password ,email = user.email)
-    
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
@@ -36,10 +35,11 @@ def create_user(user:UserCreate):
     finally:
         db.close()
         
+# Login function that returns access token and refresh token
 def login_user(user:UserLogin):
     # Creates a session
     db:Session = SessionLocal()
-    
+    print(db)
     try:
         # Checking if the email exist in my database
         find_user = db.query(User).filter(User.email == user.email).first()    
@@ -57,7 +57,7 @@ def login_user(user:UserLogin):
             # Now generate the token in utils.py and return the token and token type as bearer
             current_user_email = {"sub":find_user.email}
             jwt_access_token = create_access_token(current_user_email)
-            jwt_refresh_token = create_refresh_token(current_user_email)
+            # jwt_refresh_token = create_refresh_token(current_user_email)
 
             # It is creating an instance of JSONResponse 
             response = JSONResponse(content = {
@@ -72,10 +72,16 @@ def login_user(user:UserLogin):
                 httponly = True,
                 secure = True,
                 samesite = "strict",
-                    )
+                )
             # Before returning the response, let's store the jwt_refresh_token in the db
+            is_jwt_refresh = db.query(RefreshToken).filter((RefreshToken.user_id == find_user.id)).first()
+            if is_jwt_refresh is None or is_jwt_refresh.expires_at < datetime.utcnow() :
+                # It means either the token has expired or there doesn't exist a token
+                # Give a new token to the user in this case
+                pass
             jwt_expiry = datetime.utcnow()+timedelta(days = 7)
             refresh_token = RefreshToken(token = jwt_refresh_token,user_id = find_user.id,expires_at = jwt_expiry)
+            
             db.add(refresh_token)
             db.commit()
             db.refresh(refresh_token)
