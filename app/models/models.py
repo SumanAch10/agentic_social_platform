@@ -20,6 +20,8 @@ class User(Base):
         cascade = "all, delete-orphan"
     )
     
+    user_post = relationship("UserPost",back_populates = "user", cascade="all,delete-orphan")
+    
     def __repr__(self):
         return f"<User(id={self.id}, user_name='{self.user_name}', email='{self.email}')>"
 
@@ -35,6 +37,24 @@ class RefreshToken(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User", back_populates="refresh_tokens")
+    
+# Models for the posts
+
+class UserPost(Base):
+    __tablename__ = "user_posts"
+    
+    id = Column(Integer,primary_key = True, index = True)
+    # userpost should be linked with the user
+    user_id = Column(Integer, ForeignKey("user_login.id",ondelete = "CASCADE"),unique = True)
+    user_text = Column(String,nullable = True)
+    image_url = Column(String,nullable = True)
+    created_at = Column(DateTime(timezone = True),server_default = func.now())
+    
+    likes = Column(Integer, default = 0)
+    comments = Column(Integer, default = 0)
+    share = Column(Integer, default = 0)
+    
+    user = relationship("User",back_populates = "user_post")
 
 
 
