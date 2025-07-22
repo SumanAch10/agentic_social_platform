@@ -3,7 +3,7 @@ from fastapi import APIRouter,Depends
 from app.schemas.users import UserCreate,UserLogin
 from app.utils.auth_utils  import verify_access_token
 
-router = APIRouter()
+router = APIRouter(prefix="/auth")
 # print(type(router))
 
 @router.post("/user_create")
