@@ -63,7 +63,7 @@ def login_user(user:UserLogin):
                 "access_token":jwt_access_token,
                 "token_type":"bearer"
                 })
-        
+            print("Inside the try statement")
             # Setting up httponly cookie for refresh token
             # Before returning the response, let's store the jwt_refresh_token in the db
             is_jwt_refresh = db.query(RefreshToken).filter((RefreshToken.user_id == find_user.id)).first()
