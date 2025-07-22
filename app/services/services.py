@@ -5,16 +5,16 @@ from app.models.models import User,RefreshToken # SQLAlchemy model
 from app.schemas.users import UserCreate,UserLogin # Pydantic model
 from app.db.db import SessionLocal
 from datetime import datetime,timedelta
-from app.utils.utils import hash_password,verify_password,create_access_token,verify_access_token,create_refresh_token,verify_refresh_token
+from app.utils.auth_utils import hash_password,verify_password,create_access_token,verify_access_token,create_refresh_token,verify_refresh_token
 
 def create_user(user:UserCreate):
     # Creating the session(a temporary workspace)
     db:Session = SessionLocal()
-    print("Printing the session:,",db)
+    # print("Printing the session:,",db)
     try:
         existing_user = db.query(User).filter(( User.user_name == user.user_name ) | (User.email ==
         user.email)).first()
-        print("Printing existing user: ", existing_user)
+        # print("Printing existing user: ", existing_user)
         # If there is existing user, don't let it enter the database
         if existing_user:
             raise HTTPException(
@@ -23,7 +23,7 @@ def create_user(user:UserCreate):
         
         # Hashing the password before putting into database
         hashed_password = hash_password(user.password)
-        print("after hashing the password")
+        # print("after hashing the password")
     #    If no existing user
         new_user = User(user_name = user.user_name,password = hashed_password ,email = user.email)
         db.add(new_user)
@@ -97,20 +97,17 @@ def login_user(user:UserLogin):
 
 # Function to renew the access token
 def renew_access_token(jwt_refresh_token: str = Cookie(None)):
-    # I don't need a db session right now
-    # db:Session = SessionLocal()s
     # what if i don't recieve the jwt token
     if jwt_refresh_token is None:
         raise HTTPException(status_code = 401,detail = "Token doesn't Exist")
     
     user_email = verify_refresh_token(jwt_refresh_token)
-    cuurent_user_email = {"sub":user_email}
-    jwt_access_token = create_access_token(cuurent_user_email)
+    current_user_email = {"sub":user_email}
+    jwt_access_token = create_access_token(current_user_email)
 
     response = JSONResponse(content = {
             "access_token":jwt_access_token,
             "token_type":"bearer"
             })
     return response
-    db.close()
     
