@@ -8,6 +8,6 @@ from app.db.db import SessionLocal
 from datetime import datetime
 
 # Function to create the post
-# def create_post():
-#     pass
+def create_post():
+    pass
 
