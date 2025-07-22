@@ -1,7 +1,7 @@
 from app.services import services
 from fastapi import APIRouter,Depends
 from app.schemas.users import UserCreate,UserLogin
-from app.utils.utils  import verify_access_token
+from app.utils.auth_utils  import verify_access_token
 
 router = APIRouter()
 # print(type(router))
