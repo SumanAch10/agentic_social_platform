@@ -63,10 +63,11 @@ def login_user(user:UserLogin):
                 "access_token":jwt_access_token,
                 "token_type":"bearer"
                 })
-            print("Inside the try statement")
+
             # Setting up httponly cookie for refresh token
             # Before returning the response, let's store the jwt_refresh_token in the db
             is_jwt_refresh = db.query(RefreshToken).filter((RefreshToken.user_id == find_user.id)).first()
+    
             if is_jwt_refresh is None or is_jwt_refresh.expires_at < datetime.utcnow() :
                 # It means either the token has expired or there doesn't exist a token
                 # Give a new token to the user in this case
@@ -84,6 +85,13 @@ def login_user(user:UserLogin):
                 db.commit()
                 db.refresh(refresh_token)
             
+            response.set_cookie(
+                key = "jwt_refresh_token",
+                value = is_jwt_refresh.token,
+                httponly = True,
+                secure = True,
+                samesite = "strict",
+                )
             return response  
             # return {
             #     "key":"request done"
