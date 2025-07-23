@@ -3,8 +3,11 @@ from app.services import post_services
 from fastapi import APIRouter,Depends
 from app.schemas.users import UserPosts
 
+
 router = APIRouter(prefix = "/posts")
 
 @router.post("/create_post")
-def create_user_post():
-    pass
+def create_user_post(post:UserPosts):
+    return post_services.create_post(post)
+
+
