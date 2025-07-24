@@ -84,6 +84,7 @@ def login_user(user:UserLogin):
                 db.add(refresh_token)
                 db.commit()
                 db.refresh(refresh_token)
+                return response
             
             response.set_cookie(
                 key = "jwt_refresh_token",
