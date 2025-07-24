@@ -42,6 +42,7 @@ def verify_access_token(token:str = Depends(oauth2_scheme)):
         status_code = status.HTTP_401_UNAUTHORIZED,
         detail = "Invalid Credentials"
     )
+    print("Verifying the access token")
     try:        
         # Now i got the token, it's time to decode it 
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
