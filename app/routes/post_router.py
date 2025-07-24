@@ -12,4 +12,6 @@ router = APIRouter(prefix = "/posts")
 def create_user_post(my_post:pydantic_Userposts,current_userId = Depends(post_utils.get_current_userId)):
     return post_services.create_post(my_post,current_userId)
 
-
+@router.delete("/delete_post")
+def delete_user_post(current_userId:str = Depends(post_utils.get_current_userId)):
+    return post_services.delete_post(current_userId)
