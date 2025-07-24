@@ -45,7 +45,7 @@ class UserPost(Base):
     
     id = Column(Integer,primary_key = True, index = True)
     # userpost should be linked with the user
-    user_id = Column(Integer, ForeignKey("user_login.id",ondelete = "CASCADE"),unique = True)
+    user_id = Column(Integer, ForeignKey("user_login.id",ondelete = "CASCADE"),index = True)
     user_text = Column(String,nullable = True)
     image_url = Column(String,nullable = True)
     created_at = Column(DateTime(timezone = True),server_default = func.now())
