@@ -13,6 +13,7 @@ def create_user_route(user: UserCreate):
 # Loggin in an user
 @router.post("/user_login")
 def login_user(user:UserLogin):
+    print(user.email)
     return  services.login_user(user)
 
 @router.get("/protected")
