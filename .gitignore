@@ -3,36 +3,39 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Virtual environment
+# Virtual environments
 venv/
-.env/
+.env
 .env.*
 
-# VSCode config
-.vscode/
-
-# macOS system files
-.DS_Store
-
-# Editor backups
-*~ 
-*.swp
-*.swo
-*.bak
-
-# Python packaging
+# Poetry artifacts
+poetry.lock
 *.egg-info/
 dist/
 build/
 .eggs/
 
+# VSCode and other editor settings
+.vscode/
+.idea/
+*.iml
+
+# macOS system files
+.DS_Store
+
+# Editor backups and swap files
+*~
+*.swp
+*.swo
+*.bak
+
 # Jupyter Notebooks
-.ipynb_checkpoints
+.ipynb_checkpoints/
 
 # Log files
 *.log
 
-# Unit test / coverage reports
+# Test/coverage tools
 htmlcov/
 .tox/
 .nox/
@@ -48,17 +51,17 @@ coverage.xml
 *.sql
 *.dump
 
-# Database files
+# SQLite or other DB files (if local testing)
 *.db
 
-# OS generated files
+# OS-generated files
 Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-# IDEs
-.idea/
-*.iml
-
-# Node-related (if you’re adding JS frontend later)
+# Node.js (if frontend is added later)
 node_modules/
+
+# Docker-related
+**/__pycache__/
+docker-compose.override.yml
