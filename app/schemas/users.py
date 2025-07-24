@@ -27,6 +27,7 @@ class UserPosts(BaseModel):
     def check_image_text(self):
         if self.user_text is None and self.image_url is None:
             raise ValueError("Either user_text or image should be provided")
+        return self
         
 
 
