@@ -4,18 +4,25 @@ __pycache__/
 *$py.class
 
 # Virtual environments
+.venv/
 venv/
+
+# Environment variables
 .env
 .env.*
+.envrc
 
 # Poetry artifacts
-poetry.lock
 *.egg-info/
 dist/
 build/
 .eggs/
+poetry.lock
 
-# VSCode and other editor settings
+# Alembic
+alembic/versions/*.pyc
+
+# Editor & IDE settings
 .vscode/
 .idea/
 *.iml
@@ -29,13 +36,13 @@ build/
 *.swo
 *.bak
 
-# Jupyter Notebooks
+# Jupyter
 .ipynb_checkpoints/
 
-# Log files
+# Logs
 *.log
 
-# Test/coverage tools
+# Test & coverage tools
 htmlcov/
 .tox/
 .nox/
@@ -47,21 +54,19 @@ coverage.xml
 *.cover
 *.py,cover
 
-# PostgreSQL related dumps
+# Database (PostgreSQL dumps, SQLite)
 *.sql
 *.dump
-
-# SQLite or other DB files (if local testing)
 *.db
 
-# OS-generated files
+# OS files
 Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-# Node.js (if frontend is added later)
+# Node.js (for future frontend)
 node_modules/
 
-# Docker-related
-**/__pycache__/
+# Docker
 docker-compose.override.yml
+**/__pycache__/
