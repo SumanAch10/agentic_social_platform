@@ -67,10 +67,10 @@ def login_user(user:UserLogin):
             # Setting up httponly cookie for refresh token
             # Before returning the response, let's store the jwt_refresh_token in the db
             is_jwt_refresh = db.query(RefreshToken).filter((RefreshToken.user_id == find_user.id)).first()
-    
             if is_jwt_refresh is None or is_jwt_refresh.expires_at < datetime.utcnow() :
                 # It means either the token has expired or there doesn't exist a token
                 # Give a new token to the user in this case
+                print("")
                 jwt_refresh_token = create_refresh_token(current_user_email)
                 jwt_expiry = datetime.utcnow()+timedelta(days = 7)
                 refresh_token = RefreshToken(token = jwt_refresh_token,user_id = find_user.id,expires_at = jwt_expiry)
@@ -102,10 +102,11 @@ def login_user(user:UserLogin):
     finally:
         db.close()    
         
-
 # Function to renew the access token
 def renew_access_token(jwt_refresh_token: str = Cookie(None)):
     # what if i don't recieve the jwt token
+    print("JWt refresh token inside auth")
+    print(jwt_refresh_token)
     if jwt_refresh_token is None:
         raise HTTPException(status_code = 401,detail = "Token doesn't Exist")
     
