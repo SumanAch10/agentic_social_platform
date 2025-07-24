@@ -1,13 +1,15 @@
 # this file will handle post routing part
 from app.services import post_services
+from app.utils import post_utils
 from fastapi import APIRouter,Depends
-from app.schemas.users import UserPosts
+from app.schemas.users import UserPosts as pydantic_Userposts
 
 
 router = APIRouter(prefix = "/posts")
+# ,current_userId= Depends(post_utils.get_current_userId)
 
 @router.post("/create_post")
-def create_user_post(post:UserPosts):
-    return post_services.create_post(post)
+def create_user_post(my_post:pydantic_Userposts,current_userId = Depends(post_utils.get_current_userId)):
+    return post_services.create_post(my_post,current_userId)
 
 
