@@ -7,6 +7,7 @@ from fastapi.security import OAuth2PasswordBearer
 from app.db.db import SessionLocal
 
 # Configuration variable
+# For encoding and decoding
 SECRET_KEY = "your_secret_key"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 5
