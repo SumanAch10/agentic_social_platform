@@ -42,4 +42,17 @@ def delete_post(current_userId):
         
     finally:
         db.close()
+        
+def show_all_posts():
+    db:Session = SessionLocal()
+    
+    try:
+        user_posts = db.query(UserPost).all()
+        for post in user_posts:
+            print(post.user_text)
+        print(user_posts)
+        print(type(user_posts))
+    
+    finally:
+        db.close()
     
