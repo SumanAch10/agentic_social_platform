@@ -29,5 +29,8 @@ class UserPosts(BaseModel):
             raise ValueError("Either user_text or image should be provided")
         return self
         
-
+class PostResponse(BaseModel):
+    user_text:Optional[str] = None
+    image_url:Optional[str] = None
+    
 
