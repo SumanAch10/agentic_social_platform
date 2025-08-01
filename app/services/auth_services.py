@@ -2,7 +2,7 @@ from fastapi import HTTPException, status,Cookie,Depends
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from app.models.models import User,RefreshToken # SQLAlchemy model
-from app.schemas.users import UserCreate,UserLogin # Pydantic model
+from app.schemas.schemas import UserCreate,UserLogin # Pydantic model
 from app.db.db import SessionLocal
 from datetime import datetime,timedelta
 from app.utils.auth_utils import hash_password,verify_password,create_access_token,verify_access_token,create_refresh_token,verify_refresh_token

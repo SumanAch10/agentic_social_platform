@@ -2,8 +2,7 @@
 from app.services import post_services
 from app.utils import post_utils
 from fastapi import APIRouter,Depends
-from app.schemas.users import UserPosts as pydantic_Userposts
-from app.schemas.post_schema import PostResponse
+from app.schemas.schemas import UserPosts as pydantic_Userposts,PostResponse
 from typing import List
 
 router = APIRouter(prefix = "/posts")

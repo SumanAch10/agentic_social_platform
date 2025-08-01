@@ -3,7 +3,7 @@ from fastapi import HTTPException,status,Depends,Cookie
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from app.models.models import UserPost,User
-from app.schemas.users import UserPosts as pydantic_UserPost
+from app.schemas.schemas import UserPosts as pydantic_UserPost
 from app.db.db import SessionLocal
 from datetime import datetime
 from app.utils.post_utils import get_current_userId

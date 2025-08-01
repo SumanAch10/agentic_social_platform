@@ -1,6 +1,6 @@
 from app.services import auth_services as services
 from fastapi import APIRouter,Depends
-from app.schemas.users import UserCreate,UserLogin
+from app.schemas.schemas import UserCreate,UserLogin
 from app.utils.auth_utils  import verify_access_token
 
 router = APIRouter(prefix="/auth")
