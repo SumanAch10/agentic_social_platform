@@ -3,7 +3,8 @@ from app.services import post_services
 from app.utils import post_utils
 from fastapi import APIRouter,Depends
 from app.schemas.users import UserPosts as pydantic_Userposts
-
+from app.schemas.post_schema import PostResponse
+from typing import List
 
 router = APIRouter(prefix = "/posts")
 # ,current_userId= Depends(post_utils.get_current_userId)
@@ -16,6 +17,6 @@ def create_user_post(my_post:pydantic_Userposts,current_userId = Depends(post_ut
 def delete_user_post(current_userId:str = Depends(post_utils.get_current_userId)):
     return post_services.delete_post(current_userId)
 
-@router.get("/getposts")
+@router.get("/getposts",response_model = List[PostResponse])
 def get_all_posts():
     return post_services.show_all_posts()
