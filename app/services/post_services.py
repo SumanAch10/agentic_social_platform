@@ -48,11 +48,7 @@ def show_all_posts():
     
     try:
         user_posts = db.query(UserPost).all()
-        for post in user_posts:
-            print(post.user_text)
-        print(user_posts)
-        print(type(user_posts))
-    
+        return user_posts
     finally:
         db.close()
     
